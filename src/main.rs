@@ -1,25 +1,20 @@
+use clap::Parser;
 use river_layout_toolkit::{GeneratedLayout, Layout, Rectangle, run};
 use std::{convert::Infallible, default};
 
-fn main() {
-    let layout = MyLayout::default();
-    run(layout).unwrap();
-}
-
+#[derive(Default)]
 struct MyLayout {
     offset: i32,
     gaps_outer: u32,
     gaps_inner: u32,
 }
 
-impl Default for MyLayout {
-    fn default() -> Self {
-        Self {
-            offset: 0,
-            gaps_outer: 4,
-            gaps_inner: 4,
-        }
-    }
+#[derive(Parser)]
+struct Args {
+    #[arg(long = "gaps-outer", default_value_t = 4)]
+    gaps_outer: u32,
+    #[arg(long = "gaps-inner", default_value_t = 4)]
+    gaps_inner: u32,
 }
 
 impl Layout for MyLayout {
@@ -69,4 +64,14 @@ impl Layout for MyLayout {
             views,
         })
     }
+}
+
+fn main() {
+    let args = Args::parse();
+    let layout = MyLayout {
+        gaps_outer: args.gaps_outer,
+        gaps_inner: args.gaps_inner,
+        ..Default::default()
+    };
+    run(layout).unwrap();
 }
