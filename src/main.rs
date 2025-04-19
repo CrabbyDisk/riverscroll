@@ -38,23 +38,24 @@ impl Layout for MyLayout {
         _tags: u32,
         _output: &str,
     ) -> Result<GeneratedLayout, Self::Error> {
+        // Wrap offset around to limit value.
         self.offset = self.offset.rem_euclid(view_count as i32);
-        let mut layout = GeneratedLayout {
-            layout_name: "[]=".to_string(),
-            views: Vec::with_capacity(view_count as usize),
-        };
-        for i in (0..view_count)
+
+        let views: Vec<_> = (0..view_count)
             .cycle()
             .skip(self.offset.try_into().unwrap())
             .take(view_count.try_into().unwrap())
-        {
-            layout.views.push(Rectangle {
+            .map(|i| Rectangle {
                 x: ((2 * usable_width / 3) * i) as i32,
                 y: 0,
                 width: 2 * usable_width / 3,
                 height: usable_height,
-            });
-        }
-        Ok(layout)
+            })
+            .collect();
+
+        Ok(GeneratedLayout {
+            layout_name: "[]=".to_string(),
+            views,
+        })
     }
 }
