@@ -1,14 +1,25 @@
 use river_layout_toolkit::{GeneratedLayout, Layout, Rectangle, run};
-use std::convert::Infallible;
+use std::{convert::Infallible, default};
 
 fn main() {
     let layout = MyLayout::default();
     run(layout).unwrap();
 }
 
-#[derive(Default)]
 struct MyLayout {
     offset: i32,
+    gaps_outer: u32,
+    gaps_inner: u32,
+}
+
+impl Default for MyLayout {
+    fn default() -> Self {
+        Self {
+            offset: 0,
+            gaps_outer: 4,
+            gaps_inner: 4,
+        }
+    }
 }
 
 impl Layout for MyLayout {
@@ -46,10 +57,10 @@ impl Layout for MyLayout {
             .skip(self.offset.try_into().unwrap())
             .take(view_count.try_into().unwrap())
             .map(|i| Rectangle {
-                x: ((2 * usable_width / 3) * i) as i32,
-                y: 0,
+                x: ((2 * usable_width / 3) * i + (i + 1) * self.gaps_inner) as i32,
+                y: self.gaps_outer as i32,
                 width: 2 * usable_width / 3,
-                height: usable_height,
+                height: usable_height - 2 * self.gaps_outer,
             })
             .collect();
 
